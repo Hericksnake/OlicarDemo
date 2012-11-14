@@ -1,0 +1,47 @@
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <h:form>
+        <h:panelGrid columns="1">
+
+            <p:menubar>
+                <p:submenu label="Cadastro">
+                    <p:menuitem url="/faces/pessoas.xhtml"
+                                value="Pessoas"/>
+                    <p:menuitem url="/faces/localizacao.xhtml"
+                                value="Locais"/>
+                    <p:menuitem url="/faces/empresa.xhtml"
+                                value="Empresas"/>
+                    <p:menuitem url="/faces/veiculos.xhtml"
+                                value="Veículos"/>
+                    <p:menuitem url="/faces/tipoVeiculo.xhtml"
+                                value="Tipos de Veículos"/>
+                </p:submenu>
+
+                <p:submenu label="Ordem de Serviço">
+                    <p:menuitem url="/faces/ordemServico.xhtml"
+                                value="OS"/>
+                </p:submenu>
+
+                <p:submenu label="Controle de Acesso">
+                    <p:menuitem url="/faces/auditoria.xhtml"
+                                value="Auditoria"/>
+                    <p:menuitem url="/faces/papeis.xhtml"
+                                value="Papeis"/>
+                    <p:menuitem url="/faces/objetosProtegidos.xhtml"
+                                value="Objetos Protegidos"/>
+                </p:submenu>
+
+                <p:menuitem onclick="creditsDialog.show();"
+                            value="Creditos"/>
+                <p:menuitem value="Sair"
+                            action="#{loginMB.doLogout}"/>
+            </p:menubar>
+        </h:panelGrid>
+    </h:form>
+</ui:composition>
+

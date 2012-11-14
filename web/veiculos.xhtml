@@ -1,0 +1,358 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this template, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui" 
+      xmlns:ui="http://java.sun.com/jsf/facelets">
+
+    <ui:composition template="./layout.xhtml">
+        <ui:define name="esquerda">
+            <br/>
+        </ui:define>
+        <ui:define name="conteudo">
+            <h:form id="form1">
+
+                <p:panel header="#{label.general_Find}">
+                    <h:panelGrid columns="2">
+                        <h:outputText value="Palavra Chave" />
+
+                        <p:inputText value="#{veiculoMB.pesquisa}">
+                            <f:ajax event="keyup" render="tabela" listener="#{veiculoMB.pesquisarVeiculos()}" />
+                        </p:inputText>
+
+                    </h:panelGrid>
+                </p:panel>
+
+                <p:dataTable id="tabela"
+                             value="#{veiculoMB.listaVeiculos}"
+                             var="n"
+                             rows="10"
+                             paginatorPosition="bottom"
+                             paginator="true"
+                             rendered="true"
+                             paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}  Total de #{veiculoMB.listaVeiculos.size()} registros encontrados"
+                             rowsPerPageTemplate="5,10,15">
+                    <f:facet name="header">
+                        <h:outputText value="Veículos" />
+                    </f:facet>
+
+                    <p:column sortBy="#{n.nome}">
+                        <f:facet name="header">
+                            <h:outputText value="Nome" />
+                        </f:facet>
+                        <h:outputText value="#{n.nome}" />
+                    </p:column>
+
+                    <p:column>
+                        <f:facet name="header">
+                            <h:outputText value="Tipo Veículo" />
+                        </f:facet>
+                        <h:outputText value="#{n.tipoVeiculo.nome}" />
+                    </p:column>
+
+                    <p:column >
+                        <f:facet name="header">
+                            <h:outputText value="Nº Multas" />
+                        </f:facet>
+                        <h:outputText value="#{n.multas.size()}" />
+                    </p:column>
+
+                    <p:column >
+                        <f:facet name="header">
+                            <h:outputText value="Nº Revisões" />
+                        </f:facet>
+                        <h:outputText value="#{n.revisoes.size()}" />
+                    </p:column>
+
+                    <p:column>
+                        <f:facet name="header">
+                            <h:outputText value="Ação" />
+                        </f:facet>
+
+                        <p:commandLink id="infolink" oncomplete="addEditPopupInfo.show();" update=":addEditPanelInfo" immediate="true">
+                            <p:graphicImage value="#{veiculoMB.imagemInfo}" style="border:0"/>
+                            <f:setPropertyActionListener value="#{n}" target="#{veiculoMB.veiculo}" />
+                        </p:commandLink>
+                        <p:tooltip for="infolink" value="Informação do Veículo" />
+
+                        <p:commandLink id="multalink" oncomplete="addEditPopupMulta.show();" update=":addEditPanelMulta" action="#{veiculoMB.prepareAddMulta}" immediate="true">
+                            <p:graphicImage value="#{veiculoMB.imagemAddMulta}" style="border:0"/>
+                            <f:setPropertyActionListener value="#{n}" target="#{veiculoMB.veiculo}" />
+                        </p:commandLink>
+                        <p:tooltip for="multalink" value="Adicionar Multa" />
+
+                        <p:commandLink id="revisaolink" oncomplete="addEditPopupRevisao.show();" update=":addEditPanelRevisao" action="#{veiculoMB.prepareAddRevisao}" immediate="true">
+                            <p:graphicImage value="#{veiculoMB.imagemAddRevisao}" style="border:0"/>
+                            <f:setPropertyActionListener value="#{n}" target="#{veiculoMB.veiculo}" />
+                        </p:commandLink>
+                        <p:tooltip for="revisaolink" value="Adicionar Revisão" />
+
+                        <p:commandLink id="editlink" oncomplete="addEditPopup.show();" update=":addEditPanel" action="#{veiculoMB.prepareEditar}" immediate="true">
+                            <p:graphicImage value="#{veiculoMB.imagemEditar}" style="border:0"/>
+                            <f:setPropertyActionListener value="#{n}" target="#{veiculoMB.veiculo}" />
+                        </p:commandLink>
+                        <p:tooltip for="editlink" value="Editar" />
+
+                        <p:commandLink id="deletelink" oncomplete="deletePopup.show()">
+                            <p:graphicImage value="#{veiculoMB.imagemDeletar}" style="border:0"/>
+                            <f:setPropertyActionListener value="#{n}" target="#{veiculoMB.veiculo}" />
+                        </p:commandLink>
+                        <p:tooltip for="deletelink" value="Excluir" />
+
+                    </p:column>
+
+                    <f:facet name="footer">
+                        <p:columnGroup>
+                            <p:column colspan="1"/>
+                            <p:column>
+                                <p:commandLink id="addlink" oncomplete="addEditPopup.show()" update=":addEditPanel" action="#{veiculoMB.prepareAdicionar}" immediate="true">
+                                    <p:graphicImage value="#{veiculoMB.imagemAdicionar}" style="border:0"/>
+                                </p:commandLink>
+                                <p:tooltip for="addlink" value="Adicionar" />
+                            </p:column>
+                        </p:columnGroup>
+                    </f:facet>
+
+                </p:dataTable>
+
+            </h:form>
+
+            <!-- ################################### -->
+            <!-- bloco de INFO -->
+            <p:dialog widgetVar="addEditPopupInfo"
+                      width="1000"
+                      header="Informações do Veículo"
+                      modal="true"
+                      resizable="false"
+                      draggable="false">
+                <h:panelGrid columns="1" id="addEditPanelInfo">
+                    <h:form>
+                        <h:panelGrid columns="2">
+                            <h:outputText value="Nome Veículo:" />
+                            <h:outputLabel value="#{veiculoMB.veiculo.nome}"/>
+                        </h:panelGrid>
+
+                        <h:panelGrid columns="2">
+
+                            <p:dataTable id="tabelaMulta"
+                                         value="#{veiculoMB.veiculo.multas}"
+                                         var="m"
+                                         rows="5"
+                                         paginatorPosition="bottom"
+                                         paginator="true"
+                                         rendered="true"
+                                         paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}  Total de #{veiculoMB.veiculo.multas.size()} registros encontrados"
+                                         rowsPerPageTemplate="5,10,15">
+                                <f:facet name="header">
+                                    <h:outputText value="Multas" />
+                                </f:facet>
+
+                                <p:column>
+                                    <f:facet name="header">
+                                        <h:outputText value="Nome" />
+                                    </f:facet>
+                                    <h:outputText value="#{m.nome}" />
+                                </p:column>
+
+                                <p:column>
+                                    <f:facet name="header">
+                                        <h:outputText value="Ação" />
+                                    </f:facet>
+
+                                    <p:commandLink id="deleteMulta" oncomplete="deletePopupMulta.show()">
+                                        <p:graphicImage value="#{veiculoMB.imagemDeletar}" style="border:0"/>
+                                        <f:setPropertyActionListener value="#{m}" target="#{veiculoMB.multa}" />
+                                    </p:commandLink>
+                                    <p:tooltip for="deleteMulta" value="Excluir" />
+                                </p:column>
+
+                            </p:dataTable>
+
+                            <p:dataTable id="tabelaRevisao"
+                                         value="#{veiculoMB.veiculo.revisoes}"
+                                         var="r"
+                                         rows="5"
+                                         paginatorPosition="bottom"
+                                         paginator="true"
+                                         rendered="true"
+                                         paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}  Total de #{veiculoMB.veiculo.revisoes.size()} registros encontrados"
+                                         rowsPerPageTemplate="5,10,15">
+                                <f:facet name="header">
+                                    <h:outputText value="Revisões" />
+                                </f:facet>
+
+                                <p:column>
+                                    <f:facet name="header">
+                                        <h:outputText value="Nome" />
+                                    </f:facet>
+                                    <h:outputText value="#{r.nome}" />
+                                </p:column>
+                                <p:column>
+                                    <f:facet name="header">
+                                        <h:outputText value="Ação" />
+                                    </f:facet>
+
+                                    <p:commandLink id="deleteRevisao" oncomplete="deletePopupRevisao.show()">
+                                        <p:graphicImage value="#{veiculoMB.imagemDeletar}" style="border:0"/>
+                                        <f:setPropertyActionListener value="#{r}" target="#{veiculoMB.revisao}" />
+                                    </p:commandLink>
+                                    <p:tooltip for="deleteRevisao" value="Excluir" />
+                                </p:column>
+                            </p:dataTable>
+
+                        </h:panelGrid>
+
+                        <p:commandButton value="Fechar"
+                                         update=":form1:tabela"
+                                         onclick="addEditPopupInfo.hide();return false;" />
+                    </h:form>
+                </h:panelGrid>
+            </p:dialog>
+
+            <!-- ################################### -->
+            <!-- bloco de edição revisao -->
+            <p:dialog widgetVar="addEditPopupRevisao"
+                      width="480"
+                      header="Cadastrar Revisão"
+                      modal="true"
+                      resizable="false"
+                      draggable="false">
+                <h:panelGrid columns="1" id="addEditPanelRevisao">
+                    <h:form>
+                        <h:panelGrid columns="3">
+                            <h:outputText value="Nome:" />
+                            <p:inputText value="#{veiculoMB.revisao.nome}" id="nome" required="true" requiredMessage="Campo Obrigatório."/>
+                            <p:message for="nome" display="icon"/>
+
+                        </h:panelGrid>
+
+                        <p:commandButton value="Gravar"
+                                         actionListener="#{veiculoMB.gravarRevisao}"
+                                         update=":form1:tabela, :addEditPanelRevisao"
+                                         oncomplete="handleLocalesDialogComplete(xhr, status, args, addEditPopupRevisao)"/>
+                        <p:commandButton value="Cancelar"
+                                         onclick="addEditPopupRevisao.hide();return false;" />
+                    </h:form>
+                </h:panelGrid>
+            </p:dialog>
+
+            <!-- ################################### -->
+            <!-- bloco de edição multa -->
+            <p:dialog widgetVar="addEditPopupMulta"
+                      width="480"
+                      header="Cadastrar Multa"
+                      modal="true"
+                      resizable="false"
+                      draggable="false">
+                <h:panelGrid columns="1" id="addEditPanelMulta">
+                    <h:form>
+                        <h:panelGrid columns="3">
+                            <h:outputText value="Nome:" />
+                            <p:inputText value="#{veiculoMB.multa.nome}" id="nome" required="true" requiredMessage="Campo Obrigatório."/>
+                            <p:message for="nome" display="icon"/>
+
+                        </h:panelGrid>
+
+                        <p:commandButton value="Gravar"
+                                         actionListener="#{veiculoMB.gravarMulta}"
+                                         update=":form1:tabela, :addEditPanelMulta"
+                                         oncomplete="handleLocalesDialogComplete(xhr, status, args, addEditPopupMulta)"/>
+                        <p:commandButton value="Cancelar"
+                                         onclick="addEditPopupMulta.hide();return false;" />
+                    </h:form>
+                </h:panelGrid>
+            </p:dialog>
+
+
+            <!-- ################################### -->
+            <!-- bloco de edição -->
+            <p:dialog widgetVar="addEditPopup"
+                      width="480"
+                      header="Cadastrar/Editar"
+                      modal="true"
+                      resizable="false"
+                      draggable="false">
+                <h:panelGrid columns="1" id="addEditPanel">
+                    <h:form>
+                        <h:panelGrid columns="3">
+                            <h:outputText value="Nome:" />
+                            <p:inputText value="#{veiculoMB.veiculo.nome}" id="nome" required="true" requiredMessage="Campo Obrigatório."/>
+                            <p:message for="nome" display="icon"/>
+
+                            <h:outputText value="Tipo Veículo: " />  
+                            <p:selectOneMenu value="#{veiculoMB.idTipoVeiculoSelecionado}" id="editTip" required="true" requiredMessage="Campo Obrigatório.">
+                                <f:selectItems value="#{veiculoMB.listaTiposVeiculosItems}"/>
+                                <p:ajax event="change" process="@this"/>
+                            </p:selectOneMenu>
+
+                        </h:panelGrid>
+
+
+                        <p:commandButton value="Gravar"
+                                         actionListener="#{veiculoMB.gravar}"
+                                         update=":form1:tabela, :addEditPanel"
+                                         oncomplete="handleLocalesDialogComplete(xhr, status, args, addEditPopup)"/>
+                        <p:commandButton value="Cancelar"
+                                         onclick="addEditPopup.hide();return false;" />
+                    </h:form>
+                </h:panelGrid>
+            </p:dialog>
+
+            <!-- ################################### -->
+            <!-- bloco de exclusão -->
+            <p:dialog widgetVar="deletePopup" width="250" modal="true" header="Excluir" resizable="false">
+                <h:form>
+                    <h:outputText value="Deseja Excluir?"/>
+                    <h:panelGrid columns="2">
+                        <p:commandButton value="Sim"
+                                         action="#{veiculoMB.excluir}"
+                                         oncomplete="deletePopup.hide();"
+                                         update=":form1:tabela"/>
+
+                        <p:commandButton value="Cancelar"
+                                         onclick="deletePopup.hide();return false;" />
+                    </h:panelGrid>
+                </h:form>
+            </p:dialog>
+
+            <!-- ################################### -->
+            <!-- bloco de exclusão MULTA -->
+            <p:dialog widgetVar="deletePopupMulta" width="250" modal="true" header="Excluir Multa" resizable="false">
+                <h:form>
+                    <h:outputText value="Deseja Excluir a Multa?"/>
+                    <h:panelGrid columns="2">
+                        <p:commandButton value="Sim"
+                                         action="#{veiculoMB.excluirMulta()}"
+                                         oncomplete="deletePopupMulta.hide();"
+                                         update=":addEditPanelInfo, :form1:tabela"/>
+
+                        <p:commandButton value="Cancelar"
+                                         onclick="deletePopupMulta.hide();return false;" />
+                    </h:panelGrid>
+                </h:form>
+            </p:dialog>
+
+            <!-- ################################### -->
+            <!-- bloco de exclusão REVISAO -->
+            <p:dialog widgetVar="deletePopupRevisao" width="250" modal="true" header="Excluir Revisão" resizable="false">
+                <h:form>
+                    <h:outputText value="Deseja Excluir a Revisão?"/>
+                    <h:panelGrid columns="2">
+                        <p:commandButton value="Sim"
+                                         action="#{veiculoMB.excluirRevisao()}"
+                                         oncomplete="deletePopupRevisao.hide();"
+                                         update=":addEditPanelInfo, :form1:tabela"/>
+
+                        <p:commandButton value="Cancelar"
+                                         onclick="deletePopupRevisao.hide();return false;" />
+                    </h:panelGrid>
+                </h:form>
+            </p:dialog>
+        </ui:define>
+    </ui:composition>
+</html>
